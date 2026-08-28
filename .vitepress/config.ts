@@ -38,6 +38,7 @@ const RSS: RSSOptions = {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  lang: "zh-CN",
   title: globalConfig.informations.title,
   description: globalConfig.informations.description,
   // plz use vercel!!!!!!!
@@ -110,19 +111,23 @@ export default defineConfig({
     returnToTopLabel: globalConfig.lang.returnToTopLabel,
     lastUpdated: { text: globalConfig.lang.lastUpdated },
 
-    footer: {
-      message: `© ${new Date().getFullYear()} ${globalConfig.informations.author}${
-        globalConfig.lang.allRightsReserved
-      }<br>
-        ${
-          globalConfig.lang.poweredBy
-        } <a href="https://vitepress.dev/">VitePress</a> & <a href="https://github.com/Miralous/Miracle">Miracle</a><br>
-        ${globalConfig.informations.title} ${
-          globalConfig.lang.hasExistedFor
-        } ${getRunningTime(globalConfig.informations.dateCreated)} ${globalConfig.lang.days}
-
-        `,
-    },
+    footer: globalConfig.footer.enabled
+      ? {
+          message: [
+            `© ${new Date().getFullYear()} ${globalConfig.footer.copyright}`,
+            globalConfig.footer.icp
+              ? `<a href="${globalConfig.footer.icpLink || "https://beian.miit.gov.cn/"}" target="_blank" rel="noreferrer">${globalConfig.footer.icp}</a>`
+              : "",
+            globalConfig.footer.police
+              ? `<a href="${globalConfig.footer.policeLink || "#"}" target="_blank" rel="noreferrer">${globalConfig.footer.police}</a>`
+              : "",
+            `${globalConfig.lang.poweredBy} <a href="https://vitepress.dev/">VitePress</a> & <a href="https://github.com/Miralous/Miracle">Miracle</a>`,
+            `${globalConfig.informations.title} ${globalConfig.lang.hasExistedFor} ${getRunningTime(globalConfig.informations.dateCreated)} ${globalConfig.lang.days}`,
+          ]
+            .filter(Boolean)
+            .join("<br>"),
+        }
+      : undefined,
 
     socialLinks: [
       { icon: "github", link: `https://github.com/${globalConfig.informations.github.name}` },

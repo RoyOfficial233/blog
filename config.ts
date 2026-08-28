@@ -16,7 +16,7 @@ const languageMap: Record<string, any> = { zh, en };
 // ----------------------------------------------------------------------------
 // Default site language. Change to "zh" to use Chinese.
 // Supported values: "zh" | "en"
-const defaultLanguage = "en";
+const defaultLanguage = "zh";
 
 // Automatically selects the language file based on `defaultLanguage`.
 // Do not edit this line.
@@ -30,19 +30,31 @@ export const globalConfig: GlobalConfig = {
   // Basic site information
   // --------------------------------------------------------------------------
   informations: {
-    title: "Silvaire's Blog", // Site title shown in the browser tab and header.
-    description: "Per Aspera Ad Astra", // Short site description / tagline.
-    author: "Silvaire", // Site author name.
-    favicon:
-      "https://wsrv.nl/?url=avatars.githubusercontent.com/u/184231508?s=400&u=0a370792ba6bbb95a04d309171b562bcd7283a0f&v=4&mask=circle", // Site favicon URL (circle mask recommended).
-    avatar:
-      "https://wsrv.nl/?url=avatars.githubusercontent.com/u/184231508?s=400&u=0a370792ba6bbb95a04d309171b562bcd7283a0f&v=3", // Site avatar URL
-    url: "https://silvaire.top", // Main site URL without trailing slash.
-    dateCreated: "2024-03-23", // Site creation date (YYYY-MM-DD).
+    title: "Roy's Blog", // Site title shown in the browser tab and header.
+    description: "A simple blog.", // Short site description / tagline.
+    author: "RoyOfficial", // Site author name.
+    favicon: "https://cdn.royofficial.cn/royofficial.png", // Site favicon URL.
+    avatar: "https://cdn.royofficial.cn/royofficial.png", // Site avatar URL.
+    url: "https://royofficial.cn", // Main site URL without trailing slash.
+    dateCreated: "2026-08-27", // Site creation date (YYYY-MM-DD).
     github: {
-      name: "Miralous", // GitHub username.
-      repo: "Miracle", // GitHub repository name.
+      name: "RoyOfficial233", // GitHub username.
+      repo: "blog", // GitHub repository name.
     },
+  },
+
+  // --------------------------------------------------------------------------
+  // Footer and ICP filing
+  // --------------------------------------------------------------------------
+  footer: {
+    enabled: true,
+    copyright: " RoyOfficial. All rights reserved.", // Footer copyright text.
+    // Replace these placeholders with the filing numbers issued for your site.
+    icp: "沪ICP备2025140514号-2",
+    icpLink: "https://beian.miit.gov.cn/",
+    // Optional public security filing. Leave both fields empty if not applicable.
+    police: "",
+    policeLink: "",
   },
 
   // --------------------------------------------------------------------------
@@ -102,7 +114,7 @@ export const globalConfig: GlobalConfig = {
   // --------------------------------------------------------------------------
   friendWeights: {
     // Example: -99, // This friend would appear at the top.
-    Miracle: -99,
+    RoyOfficial: -99,
     friends: -1,
     unable: 0, // This friend will appear at the bottom.
   },
@@ -155,37 +167,28 @@ export const globalConfig: GlobalConfig = {
     modules: {
       pictures: false, // Show pictures module.
       lastMoment: true, // Show latest moment module.
-      recentPosts: true, // Show recent posts module.
-      projects: true, // Show projects module (may be slow to load).
-      musics: true, // Show music list module.
+      recentPosts: false, // Show recent posts module.
+      projects: false, // Show projects module (may be slow to load).
+      musics: false, // Show music list module.
       techStack: true, // Show tech stack module.
-      friends: true, // Show friends module.
+      friends: false, // Show friends module.
     },
 
     // Tech stack icons. Icon names come from devicons:
     // https://cdn.jsdelivr.us/gh/devicons/devicon/icons/${stack.icon}/${stack.icon}-original.svg
     stacks: [
-      { name: "Arch Linux", icon: "archlinux" },
-      { name: "CSS", icon: "css3" },
-      { name: "HTML", icon: "html5" },
-      { name: "Linux", icon: "linux" },
-      { name: "Vue", icon: "vuejs" },
-      { name: "JSON", icon: "json" },
-      { name: "JavaScript", icon: "javascript" },
+      { name: "Go", icon: "go" },
+      { name: "Vue.js", icon: "vuejs" },
       { name: "PNPM", icon: "pnpm" },
-      { name: "Visual Studio Code", icon: "vscode" },
-      { name: "VSCodium", icon: "vscodium" },
-      { name: "TypeScript", icon: "typescript" },
-      { name: "Node.js", icon: "nodejs" },
-      { name: "Vite", icon: "vitejs" },
-      { name: "Vim", icon: "vim" },
-      { name: "Neovim", icon: "neovim" },
-      { name: "Windows", icon: "windows11" },
-      { name: "Git", icon: "git" },
       { name: "NPM", icon: "npm" },
-      { name: "Yarn", icon: "yarn" },
-      { name: "Tailwind CSS", icon: "tailwindcss" },
-      { name: "Docker", icon: "docker" },
+      { name: "Node.js", icon: "nodejs" },
+      { name: "Git", icon: "git" },
+      { name: "JavaScript", icon: "javascript" },
+      { name: "HTML", icon: "html5" },
+      { name: "CSS", icon: "css3" },
+      { name: "Windows", icon: "windows11" },
+      { name: "macOS", icon: "apple" },
+      { name: "Linux", icon: "linux" },
     ],
   },
 
@@ -194,49 +197,35 @@ export const globalConfig: GlobalConfig = {
   // --------------------------------------------------------------------------
   nav: [
     { text: languageFile.dashboard, link: "/" },
-    {
-      text: languageFile.articles,
-      items: [
-        { text: languageFile.archives, link: "/archives" },
-        { text: languageFile.moments, link: "/moments" },
-        { text: languageFile.timeline, link: "/timeline" },
-        { text: languageFile.about, link: "/about" },
-      ],
-    },
-    {
-      text: languageFile.others,
-      items: [
-        { text: languageFile.friends, link: "/friends" },
-        // Music list page
-        { text: languageFile.musics, link: "/musics" },
-        { text: languageFile.photos, link: "/photos" },
-        // Whiteboard / comments page
-        { text: languageFile.whiteboard, link: "/whiteboard" },
-      ],
-    },
+    { text: "博客", link: "/archives" },
+    { text: languageFile.moments, link: "/moments" },
+    { text: languageFile.timeline, link: "/timeline" },
+    { text: languageFile.about, link: "/about" },
+    { text: languageFile.photos, link: "/photos" },
+    { text: languageFile.whiteboard, link: "/whiteboard" },
   ],
 
   // --------------------------------------------------------------------------
   // About page
   // --------------------------------------------------------------------------
   about: {
-    desc: "A student who is learning frontend development", // Short personal description.
+    desc: "Just a simple person in the big world.", // Short personal description.
     tags: [
       {
         icon: "ph:city-duotone",
         title: "Location",
-        content: "Tianjin",
+        content: "Shanghai",
       },
       {
         icon: "ph:ruler-duotone",
         title: "Height",
-        content: "152 CM",
+        content: "162 CM (Maybe)",
       },
     ],
     todo: [
-      { complete: true, text: "Write more articles" },
-      { complete: true, text: "Miracle v2" },
-      { complete: false, text: "Make more friends" },
+      { complete: true, text: "Build up my blog" },
+      { complete: true, text: "Get a new PC" },
+      { complete: false, text: "Finish the development of levis & virtualis" },
     ],
     // Contact methods. `icon` uses iconify icon names.
     // Fill in the platforms and accounts you want to show.
@@ -244,37 +233,32 @@ export const globalConfig: GlobalConfig = {
       {
         icon: "mingcute:qq-fill", // Platform icon (image).
         platform: "QQ", // Platform name.
-        account: "3624285658", // Your account on that platform.
+        account: "3398508689", // Your account on that platform.
       },
       {
         icon: "ri:qq-line", // Platform icon (image).
-        platform: "Miracle Dev Group", // Platform name.
-        account: "1047573884", // Your account on that platform.
-      },
-      {
-        icon: "ri:qq-line", // Platform icon (image).
-        platform: "Personal Group", // Platform name.
-        account: "1094626427", // Your account on that platform.
+        platform: "Falling Sakura #01", // Platform name.
+        account: "428547306", // Your account on that platform.
       },
 
       {
         icon: "ph:github-logo-duotone", // Platform icon (image).
         platform: "GitHub", // Platform name.
-        account: "silvaire-qwq", // Your account on that platform.
-        link: "https://github.com/silvaire-qwq", // Optional: link to the profile.
+        account: "RoyOfficial233", // Your account on that platform.
+        link: "https://github.com/RoyOfficial233", // Optional: link to the profile.
       },
       {
         icon: "ph:television-duotone",
         platform: "BiliBili",
-        account: "Silvaire",
-        link: "https://space.bilibili.com/1586464858", // Optional: link to the profile.
+         account: "RoyOfficial",
+        link: "https://space.bilibili.com/1653312994", // Optional: link to the profile.
       },
       // More examples (delete or edit as you like):
       {
         icon: "ph:envelope-duotone",
         platform: "Email",
-        account: "silvaire_qwq@outlook.com",
-        link: "mailto:silvaire_qwq@outlook.com", // Optional: link to the profile.
+        account: "royofficial@royofficial.com",
+        link: "mailto:royofficial@royofficial.com", // Optional: link to the profile.
       },
       // {
       //   icon: "ph:telegram-logo-duotone",
@@ -283,14 +267,14 @@ export const globalConfig: GlobalConfig = {
       // },
     ],
     schedule: {
-      enabled: true,
-      monday: [{ time: "07:30-07:50", name: "English" }],
-      tuesday: [{ time: "07:30-07:50", name: "Maths" }],
-      wednesday: [{ time: "07:30-07:50", name: "Geography" }],
-      thursday: [{ time: "07:30-07:50", name: "Chinese" }],
-      friday: [{ time: "07:30-07:50", name: "English" }],
-      saturday: [{ time: "09:30-12:00", name: "Maths" }],
-      sunday: [{ time: "09:30-12:00", name: "English" }],
+      enabled: false,
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: [],
     },
   },
 

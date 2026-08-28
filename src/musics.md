@@ -1,6 +1,5 @@
 ---
 layout: home
-footer: false
 title: Musics
 ---
 

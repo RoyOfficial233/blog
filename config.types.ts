@@ -23,6 +23,15 @@ export interface Informations {
   github: GithubInfo;
 }
 
+export interface FooterConfig {
+  enabled: boolean;
+  copyright: string;
+  icp?: string;
+  icpLink?: string;
+  police?: string;
+  policeLink?: string;
+}
+
 export interface Features {
   deepHideNegative: boolean;
   multiSelect: boolean;
@@ -223,6 +232,7 @@ export interface WaterfallConfig {
 
 export interface GlobalConfig {
   informations: Informations;
+  footer: FooterConfig;
   features: Features;
   styles: StylesConfig;
   friendWeights: FriendWeights;

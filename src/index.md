@@ -2,7 +2,6 @@
 # https://vitepress.dev/reference/default-theme-home-page
 layout: page
 pageClass: indexPage
-footer: false
 ---
 
 <ClientOnly>

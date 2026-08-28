@@ -5,8 +5,8 @@ import { globalConfig } from "#config";
 <template>
   <div class="first-page">
     <div class="hero-content">
-      <p class="hero-author">{{ globalConfig.informations.author }}</p>
-      <h1 class="hero-title">{{ globalConfig.informations.title }}</h1>
+      <p class="hero-author" aria-label="博客作者">{{ globalConfig.informations.author }}</p>
+      <h1 class="hero-title" aria-label="博客名称">{{ globalConfig.informations.title }}</h1>
       <div class="hero-divider"></div>
       <p class="hero-desc">{{ globalConfig.informations.description }}</p>
     </div>
