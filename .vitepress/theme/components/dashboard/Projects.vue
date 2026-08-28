@@ -1,138 +1,168 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { globalConfig } from "#config";
 import PostCard from "../common/postCard.vue";
-const username = globalConfig.informations.github.name;
-const posts = ref<any[]>([]);
+
+interface ProjectConfig {
+  repo: string;
+  description?: string;
+  image?: string;
+  noImage?: boolean;
+}
+
+interface Project {
+  link: string;
+  title: string;
+  description: string;
+  image: string;
+  language: string;
+  updated: string;
+}
+
+const projects = ref<Project[]>([]);
 const loading = ref(true);
 const error = ref("");
-const CACHE_KEY = "github_projects_cache";
-const CACHE_TTL = 60 * 60 * 1000; // 1小时缓存
-
-// 每行最多 3 个，超出的项目不显示（只保留一行）
 const columnCount = ref(1);
 const MIN_COL_WIDTH = 320;
 const MAX_COLS = 3;
+const CACHE_KEY = "manual_github_projects_cache";
+const CACHE_TTL = 60 * 60 * 1000;
 
-function computeColumns() {
-  const maxByWidth = Math.max(1, Math.floor(window.innerWidth / MIN_COL_WIDTH));
-  columnCount.value = Math.min(MAX_COLS, maxByWidth);
+const configuredProjects = computed(() =>
+  globalConfig.homePage.projects.filter((project) => project.repo.trim()),
+);
+
+const cacheKey = computed(
+  () => `${CACHE_KEY}:${JSON.stringify(configuredProjects.value)}`,
+);
+
+function parseRepositoryUrl(value: string): { owner: string; repo: string; url: string } | null {
+  try {
+    const url = new URL(value);
+    if (url.hostname !== "github.com") return null;
+    const [owner, repo] = url.pathname.split("/").filter(Boolean);
+    if (!owner || !repo) return null;
+    return {
+      owner,
+      repo: repo.replace(/\.git$/, ""),
+      url: `https://github.com/${owner}/${repo.replace(/\.git$/, "")}`,
+    };
+  } catch {
+    return null;
+  }
 }
 
-// 只保留能铺满一行的项目数
-const visiblePosts = computed(() => posts.value.slice(0, columnCount.value));
-
-const gridStyle = computed(() => ({
-  gridTemplateColumns: `repeat(${columnCount.value}, 1fr)`,
-}));
-
-// 获取 GitHub 项目数据
-async function fetchGithubData() {
-  const res = await fetch(`https://api.github.com/users/${username}/repos`);
-  if (!res.ok) throw new Error("GitHub API rate limited.");
-  const data = await res.json();
-
-  // 过滤掉 Public Archive 与 GitHub 特殊仓库（.github / profile repo）
-  const filteredRepos = data.filter(
-    (repo: any) =>
-      !repo.archived &&
-      repo.name.toLowerCase() !== username.toLowerCase() &&
-      repo.name.toLowerCase() !== ".github",
-  );
-  const projects = await Promise.all(
-    filteredRepos.map(async (repo: any) => {
-      let lastCommit = "";
-      let committer = "";
-      try {
-        const commitsRes = await fetch(
-          `https://api.github.com/repos/${username}/${repo.name}/commits?per_page=1`,
-        );
-        const commits = await commitsRes.json();
-        lastCommit = commits[0]?.commit?.message || "";
-        // ✅ 使用 GitHub 登录名而非 commit 作者名字
-        committer = commits[0]?.author?.login || username;
-      } catch {}
-
-      return {
-        link: repo.html_url,
-        title: repo.name.replace(/-/g, " "),
-        description: repo.description,
-        lastCommit,
-        committer,
-        avatarUrl: repo.owner.avatar_url,
-      };
-    }),
-  );
-
-  return projects;
+function readmeExcerpt(markdown: string): string {
+  return markdown
+    .replace(/^---[\s\S]*?---/m, "")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+    .replace(/`{3}[\s\S]*?`{3}/g, "")
+    .replace(/[#>*_`~\-[\]]/g, "")
+    .replace(/\([^)]*\)/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 180);
 }
 
-function filterProjects(projects: any[]) {
-  return projects.filter(
-    (p) => p.title.toLowerCase() !== ".github",
-  );
+async function fetchProject(repoConfig: ProjectConfig): Promise<Project | null> {
+  const parsed = parseRepositoryUrl(repoConfig.repo);
+  if (!parsed) return null;
+
+  const apiBase = `https://api.github.com/repos/${parsed.owner}/${parsed.repo}`;
+  const repoResponse = await fetch(apiBase);
+  if (!repoResponse.ok) throw new Error(`无法读取仓库：${parsed.url}`);
+  const repo = await repoResponse.json();
+  let readme = "";
+
+  try {
+    const readmeResponse = await fetch(`${apiBase}/readme`);
+    if (readmeResponse.ok) {
+      const readmeData = await readmeResponse.json();
+      if (readmeData.download_url) {
+        const rawResponse = await fetch(readmeData.download_url);
+        if (rawResponse.ok) readme = await rawResponse.text();
+      }
+    }
+  } catch {
+    // README is optional; repository information can still render.
+  }
+
+  return {
+    link: parsed.url,
+    title: repo.name.replace(/[-_]/g, " "),
+    description: repoConfig.description?.trim() || readmeExcerpt(readme) || repo.description || "暂无项目简介",
+    image: repoConfig.noImage
+      ? ""
+      : repoConfig.image?.trim() || repo.owner?.avatar_url || `https://github.com/${parsed.owner}.png?size=256`,
+    language: repo.language || "GitHub",
+    updated: repo.updated_at || "",
+  };
 }
 
-// 渲染缓存逻辑
 async function loadProjects() {
   loading.value = true;
-  let cache = localStorage.getItem(CACHE_KEY);
-  let cacheTime = localStorage.getItem(CACHE_KEY + "_time");
-  let projects: any[] = [];
+  error.value = "";
+  const currentCacheKey = cacheKey.value;
+  const cached = localStorage.getItem(currentCacheKey);
+  const cachedAt = localStorage.getItem(`${currentCacheKey}_time`);
 
-  if (cache && cacheTime && Date.now() - Number(cacheTime) < CACHE_TTL) {
-    try {
-      projects = JSON.parse(cache);
-      posts.value = filterProjects(projects);
-      computeColumns();
-      loading.value = false;
-      return;
-    } catch {}
+  if (cached && cachedAt && Date.now() - Number(cachedAt) < CACHE_TTL) {
+    projects.value = JSON.parse(cached);
+    loading.value = false;
+    return;
   }
 
   try {
-    projects = await fetchGithubData();
-    localStorage.setItem(CACHE_KEY, JSON.stringify(projects));
-    localStorage.setItem(CACHE_KEY + "_time", Date.now().toString());
-    posts.value = filterProjects(projects);
-    computeColumns();
-  } catch (e: any) {
-    if (cache) {
-      try {
-        posts.value = filterProjects(JSON.parse(cache));
-        computeColumns();
-      } catch {}
+    const loaded = await Promise.all(
+      configuredProjects.value.map((project) => fetchProject(project)),
+    );
+    projects.value = loaded.filter((project): project is Project => project !== null);
+    if (projects.value.length) {
+      localStorage.setItem(currentCacheKey, JSON.stringify(projects.value));
+      localStorage.setItem(`${currentCacheKey}_time`, Date.now().toString());
+    }
+  } catch (loadError: any) {
+    if (cached) {
+      projects.value = JSON.parse(cached);
     } else {
-      error.value = e.message;
+      error.value = loadError?.message || "项目加载失败，请检查仓库地址。";
     }
   } finally {
     loading.value = false;
   }
 }
 
-const onResize = () => computeColumns();
+function computeColumns() {
+  const maxByWidth = Math.max(1, Math.floor(window.innerWidth / MIN_COL_WIDTH));
+  columnCount.value = Math.min(MAX_COLS, maxByWidth);
+}
+
+const visibleProjects = computed(() => projects.value.slice(0, columnCount.value));
+const gridStyle = computed(() => ({ gridTemplateColumns: `repeat(${columnCount.value}, 1fr)` }));
 
 onMounted(() => {
   loadProjects();
-  window.addEventListener("resize", onResize);
+  computeColumns();
+  window.addEventListener("resize", computeColumns);
 });
-onBeforeUnmount(() => {
-  window.removeEventListener("resize", onResize);
-});
+
+onBeforeUnmount(() => window.removeEventListener("resize", computeColumns));
 </script>
 
 <template>
   <div v-if="loading"></div>
   <div v-else-if="error">{{ error }}</div>
+  <div v-else-if="!projects.length">请先在 config.ts 的 homePage.projects 中添加仓库地址。</div>
   <div v-else class="posts-grid" :style="gridStyle">
-    <div v-for="post in visiblePosts" :key="post.link" class="post-card">
+    <div v-for="project in visibleProjects" :key="project.link" class="post-card">
       <PostCard
-        :url="post.link"
-        :title="post.title"
-        :description="post.description"
-        :category="post.committer || 'Unknown'"
-        :date="post.lastCommit || 'No commits yet'"
-        :type="'project'"
+        :url="project.link"
+        :title="project.title"
+        :description="project.description"
+        :category="project.language"
+        :origin-date="project.updated"
+        :image="project.image"
+        type="project"
       />
     </div>
   </div>
@@ -142,9 +172,5 @@ onBeforeUnmount(() => {
 .posts-grid {
   display: grid;
   gap: var(--vp-gap);
-}
-
-.diary {
-  height: 100% !important;
 }
 </style>

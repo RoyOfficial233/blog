@@ -135,10 +135,18 @@ export interface Stack {
   icon: string;
 }
 
+export interface ProjectConfig {
+  repo: string;
+  description?: string;
+  image?: string;
+  noImage?: boolean;
+}
+
 export interface HomePageConfig {
   banner: BannerConfig;
   modules: HomeModules;
   stacks: Stack[];
+  projects: ProjectConfig[];
 }
 
 export interface NavSubItem {
@@ -210,6 +218,7 @@ export interface GiscusThemes {
 export interface GiscusConfig {
   repo: string;
   repoId: string;
+  category: string;
   categoryId: string;
   themes: GiscusThemes;
 }

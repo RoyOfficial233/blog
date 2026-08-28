@@ -126,7 +126,85 @@ modules: {
 
 关闭模块后不需要删除组件文件，主题不会加载对应首页内容，升级模板时也更容易同步更新。
 
-## 5. 修改顶部导航
+## 5. 手动配置 Projects 项目
+
+Projects 不再自动扫描整个 GitHub 用户的仓库，而是读取 `config.ts` 中的 `homePage.projects`。每个项目只需要填写一个完整的 GitHub 仓库地址：
+
+```ts
+homePage: {
+  modules: {
+    projects: true,
+  },
+  projects: [
+    {
+      repo: "https://github.com/RoyOfficial233/blog",
+      description: "RoyOfficial 的个人博客",
+      image: "https://example.com/project-cover.png",
+    },
+    { repo: "https://github.com/vuejs/core" },
+  ],
+}
+```
+
+组件会自动完成以下工作：
+
+- 根据仓库地址读取仓库名称、主要语言和更新时间。
+- `description` 可选，填写后优先使用手动简介。
+- 请求仓库的 README 文件。
+- 项目图标默认使用项目所有者的 GitHub 头像。
+- `image` 可选，填写后使用自定义项目图片替代所有者头像。
+- `noImage` 可选，设置为 `true` 后不显示任何项目图片。
+- 未填写 `description` 时，依次使用 README 摘要、GitHub 仓库简介。
+- 按 `projects` 数组中的顺序显示项目。
+
+支持的仓库地址格式：
+
+```text
+https://github.com/用户名/仓库名
+https://github.com/用户名/仓库名.git
+```
+
+注意事项：
+
+- 仓库必须是公开仓库，GitHub API 才能在浏览器端读取。
+- 项目卡片最多显示当前屏幕一行，桌面端最多 3 个，移动端显示 1 个。这是 Miracle 原主题的设计。
+- 组件使用浏览器 `localStorage` 缓存项目数据 1 小时，缓存会自动绑定当前仓库地址列表。修改项目地址后会自动重新请求；如果仍显示旧内容，可以打开浏览器控制台执行：
+
+```js
+localStorage.removeItem("manual_github_projects_cache")
+localStorage.removeItem("manual_github_projects_cache_time")
+```
+
+- GitHub API 有未登录请求限制。项目数量较多或访问频繁时可能遇到限流；减少项目数量、等待一段时间后再访问即可。
+- README 中的相对图片路径会自动按仓库默认分支转换为 `raw.githubusercontent.com` 地址。如果图片使用特殊路径或需要权限，建议在 README 中使用完整 HTTPS 图片地址。
+- 如果想使用项目封面图片，需要将图片地址填写到项目的 `image` 字段；不填写时项目卡片默认显示项目所有者头像。
+
+如果项目不需要图片，配置 `noImage: true`：
+
+```ts
+{
+  repo: "https://github.com/RoyOfficial233/consilium",
+  description: "一个计划管理工具。",
+  noImage: true,
+}
+```
+
+`noImage` 的优先级最高。即使同时填写了 `image`，只要 `noImage` 是 `true`，项目卡片也不会显示图片区域。
+
+如果只想显示项目而不显示首页模块以外的内容，确保：
+
+```ts
+homePage: {
+  modules: {
+    projects: true,
+    recentPosts: false,
+    musics: false,
+    friends: false,
+  },
+}
+```
+
+## 6. 修改顶部导航
 
 导航配置同样位于 `config.ts` 的 `nav`：
 
@@ -140,7 +218,7 @@ nav: [
 
 添加导航项时，`link` 对应 `src/` 中的页面路径。例如 `src/moments.md` 对应 `/moments`。删除某个导航项只需要从数组中删除对应对象，不会删除页面文件。
 
-## 6. 修改关于页面和联系方式
+## 7. 修改关于页面和联系方式
 
 关于页的介绍、标签、待办事项和联系方式位于 `config.ts` 的 `about`：
 
@@ -160,7 +238,7 @@ about: {
 
 联系方式只保留你需要的对象即可。`icon` 使用 Iconify 名称，`link` 是点击后打开的地址。
 
-## 7. 本地运行和发布
+## 8. 本地运行和发布
 
 ```bash
 # 安装依赖
@@ -180,7 +258,7 @@ pnpm preview
 
 每次修改文章或配置后，先执行 `pnpm build`，确认构建成功后再部署。若页面仍显示旧内容，清理浏览器缓存或重启开发服务器。
 
-## 8. 常见问题
+## 9. 常见问题
 
 ### 修改配置后没有生效
 
@@ -194,7 +272,7 @@ pnpm preview
 
 确认文件位于 `src/posts/`，后缀是 `.md`，Frontmatter 使用 `---` 包裹，并且至少填写了 `title` 和 `date`。
 
-## 9. ICP 备案号和页脚
+## 10. ICP 备案号和页脚
 
 页脚配置位于根目录的 `config.ts`，与站点名称配置处于同一个文件：
 
@@ -233,7 +311,7 @@ footer: {
 
 修改后执行 `pnpm build`，然后查看任意内容页底部。首页的 `footer: false` Frontmatter 可能会隐藏默认页脚；如果首页需要显示页脚，请检查对应 Markdown 文件并移除这一行。备案号必须使用真实、已审核通过的备案信息，不能长期保留示例编号。
 
-## 10. Friends 友链页
+## 11. Friends 友链页
 
 ## 9. Friends 友链页
 
@@ -259,7 +337,7 @@ footer: {
 
 删除 JSON 文件即可删除友链。`config.ts` 中的 `features.allowWorkflowAddFriendLink` 只用于 Miracle 的 GitHub 自动添加友链工作流，不需要自动审核时可以改为 `false`。
 
-## 11. Moments 动态页
+## 12. Moments 动态页
 
 动态页面地址是 `/moments`，数据目录是 `public/data/moments/`。一条动态对应一个 Markdown 文件，例如 `public/data/moments/2026-08-28_1200.md`：
 
@@ -280,13 +358,13 @@ image: https://example.com/photo.jpg
 
 动态会按照日期和时间倒序显示。首页的 `lastMoment: true` 会展示最新一条动态；只想保留独立动态页时可将其改为 `false`。
 
-## 12. Timeline 时间线页
+## 13. Timeline 时间线页
 
 时间线页面地址是 `/timeline`。它直接读取 `public/data/moments/` 中的所有动态，因此添加时间线内容的方法与 Moments 完全相同，不需要再维护第二份数据。
 
 建议给每条动态填写准确的 `date` 和 `time`。如果时间缺失，排序可能不符合预期。修改动态文件后重启开发服务器，即可同时在 `/moments` 和 `/timeline` 查看结果。
 
-## 13. About 关于页
+## 14. About 关于页
 
 关于页面地址是 `/about`，页面文件是 `src/about.md`，具体资料配置在根目录 `config.ts` 的 `about`：
 
@@ -316,7 +394,7 @@ about: {
 - `schedule.enabled`：是否显示课程/日程表；个人博客通常建议关闭。
 - `contacts`：联系方式，配置方式见前文第 6 节。
 
-## 14. Musics 音乐页
+## 15. Musics 音乐页
 
 音乐页面地址是 `/musics`。音乐数据来自网易云歌单，配置位于 `config.ts` 的 `netease`：
 
@@ -336,7 +414,7 @@ netease: {
 
 当前首页音乐模块已关闭，但 `/musics` 页面仍可通过导航或直接地址访问。若不需要音乐功能，可以从 `nav` 删除 `/musics` 入口，并保留页面文件以便以后恢复。
 
-## 15. Photos 图库页
+## 16. Photos 图库页
 
 图库页面地址是 `/photos`。图片放在 `public/data/photos/` 下，推荐按相册分类创建子目录：
 
@@ -361,7 +439,7 @@ photo: {
 
 如果照片包含 GPS 信息，建议将 `exifGps` 设置为 `false`，避免公开位置信息。添加或删除照片后重新构建即可更新图库。
 
-## 16. Whiteboard 留言板
+## 17. Whiteboard 留言板
 
 留言板页面地址是 `/whiteboard`，页面文件是 `src/whiteboard.md`。它使用评论系统，配置位于 `config.ts` 的 `comments`：
 
@@ -372,6 +450,7 @@ comments: {
   giscus: {
     repo: "用户名/仓库名",
     repoId: "从 giscus.app 获取",
+    category: "Announcements",
     categoryId: "从 giscus.app 获取",
     themes: {
       light: "https://giscus.catppuccin.com/themes/latte.css",
@@ -391,7 +470,32 @@ comments: {
 
 如果不需要留言板，将 `enabled` 改为 `false`，并从 `nav` 删除 `/whiteboard`。
 
-## 17. Archives 文章归档页
+### 已发布留言不显示
+
+Giscus 的留言不是存储在 VitePress 项目里，而是存储在 GitHub Discussions。要显示已有留言，以下配置必须来自同一个 Giscus 仓库和同一个 Discussion 分类：
+
+```ts
+giscus: {
+  repo: "RoyOfficial233/blog",
+  repoId: "正确的 repoId",
+  category: "Announcements",
+  categoryId: "正确的 categoryId",
+}
+```
+
+`category` 是分类名称，`categoryId` 是该分类的 ID，两者必须匹配。不要只复制 `categoryId` 而保留旧的分类名称。建议重新打开 [giscus.app](https://giscus.app)，输入当前仓库后复制完整配置。
+
+还需要检查：
+
+- GitHub 仓库是公开仓库。
+- 仓库已经启用 Discussions。
+- Giscus GitHub App 已安装到该仓库。
+- `/whiteboard` 页面能正常加载 `https://giscus.app/client.js`。
+- 旧留言是通过同一个 `mapping` 规则创建的。本主题使用 `pathname`，所以 `/whiteboard`、`/` 和 `/about` 会对应不同的讨论。
+
+如果留言原来是在首页发布的，而现在想在 `/whiteboard` 显示，它们不会因为页面移动自动合并。可以在 giscus 的配置中选择原来的映射规则，或在同一个 Discussion 下继续查看旧留言。修改配置后请执行 `pnpm build` 并强制刷新浏览器。
+
+## 18. Archives 文章归档页
 
 文章归档页面地址是 `/archives`，页面文件是 `src/archives.md`，文章目录是 `src/posts/`。归档组件会自动读取文章 Frontmatter，并按年份、分类和标签整理。
 
@@ -419,7 +523,7 @@ tags: [VitePress, Vue]
 
 归档页不需要手动添加文章链接。新建、修改或删除 `src/posts/*.md` 后，主题会自动重新生成归档内容。
 
-## 18. 修改页面显示名称
+## 19. 修改页面显示名称
 
 页面标题的默认翻译在 `.vitepress/theme/lang/index.ts`。如果希望统一修改导航文字，可以直接修改 `config.ts` 的 `nav`，例如：
 
@@ -437,7 +541,7 @@ nav: [
 
 页面文件名和 URL 不建议随意修改。如果确实需要修改，必须同时更新 `nav` 中的 `link` 和所有指向旧 URL 的文章链接。
 
-## 19. 修改品牌后仍显示旧内容怎么办
+## 20. 修改品牌后仍显示旧内容怎么办
 
 品牌相关配置有三处：`config.ts` 的 `informations`、`.vitepress/config.ts` 的 VitePress 配置，以及主题组件读取的 `globalConfig`。本项目已经统一由 `globalConfig.informations` 提供标题、作者、头像和 favicon。
 

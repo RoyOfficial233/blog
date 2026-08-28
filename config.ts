@@ -35,7 +35,7 @@ export const globalConfig: GlobalConfig = {
     author: "RoyOfficial", // Site author name.
     favicon: "https://cdn.royofficial.cn/royofficial.png", // Site favicon URL.
     avatar: "https://cdn.royofficial.cn/royofficial.png", // Site avatar URL.
-    url: "https://royofficial.cn", // Main site URL without trailing slash.
+    url: "https://www.royofficial.cn", // Main site URL without trailing slash.
     dateCreated: "2026-08-27", // Site creation date (YYYY-MM-DD).
     github: {
       name: "RoyOfficial233", // GitHub username.
@@ -123,8 +123,8 @@ export const globalConfig: GlobalConfig = {
   // NetEase music settings
   // --------------------------------------------------------------------------
   netease: {
-    musicList: "17942010185", // NetEase playlist ID.
-    metingApi: "https://api.qijieya.cn/meting", // Meting API endpoint.
+    musicList: "", // NetEase playlist ID.
+    metingApi: "", // Meting API endpoint.
     showButtons: true, // If false, music player control buttons are hidden.
     showTranslation: true, // Show translated lyrics.
     showRoman: false, // Show romanized lyrics.
@@ -167,15 +167,21 @@ export const globalConfig: GlobalConfig = {
     modules: {
       pictures: false, // Show pictures module.
       lastMoment: true, // Show latest moment module.
-      recentPosts: false, // Show recent posts module.
-      projects: false, // Show projects module (may be slow to load).
+      recentPosts: true, // Show recent posts module.
+      projects: true, // Show projects module (may be slow to load).
       musics: false, // Show music list module.
       techStack: true, // Show tech stack module.
-      friends: false, // Show friends module.
+      friends: true, // Show friends module.
     },
 
     // Tech stack icons. Icon names come from devicons:
     // https://cdn.jsdelivr.us/gh/devicons/devicon/icons/${stack.icon}/${stack.icon}-original.svg
+    // Projects are loaded only from these repositories, in this order.
+    projects: [
+      { repo: "https://github.com/SakuraOpenSource/levis", description: "一个轻量、简洁的业务管理系统。", noImage: true},
+      { repo: "https://github.com/SakuraOpenSource/virtualis", description: "一个虚拟化管理系统。", noImage: true},
+      { repo: "https://github.com/RoyOfficial233/consilium", description: "一个计划管理工具。", noImage: true}
+    ],
     stacks: [
       { name: "Go", icon: "go" },
       { name: "Vue.js", icon: "vuejs" },
@@ -197,35 +203,32 @@ export const globalConfig: GlobalConfig = {
   // --------------------------------------------------------------------------
   nav: [
     { text: languageFile.dashboard, link: "/" },
-    { text: "博客", link: "/archives" },
+    { text: "文章", link: "/archives" },
     { text: languageFile.moments, link: "/moments" },
-    { text: languageFile.timeline, link: "/timeline" },
-    { text: languageFile.about, link: "/about" },
-    { text: languageFile.photos, link: "/photos" },
-    { text: languageFile.whiteboard, link: "/whiteboard" },
+    { text: languageFile.about, link: "/about" }
   ],
 
   // --------------------------------------------------------------------------
   // About page
   // --------------------------------------------------------------------------
   about: {
-    desc: "Just a simple person in the big world.", // Short personal description.
+    desc: "我喜欢你", // Short personal description.
     tags: [
       {
         icon: "ph:city-duotone",
-        title: "Location",
-        content: "Shanghai",
+        title: "位置",
+        content: "上海 · 闵行",
       },
       {
         icon: "ph:ruler-duotone",
-        title: "Height",
-        content: "162 CM (Maybe)",
+        title: "身高",
+        content: "162 CM (存疑)",
       },
     ],
     todo: [
-      { complete: true, text: "Build up my blog" },
-      { complete: true, text: "Get a new PC" },
-      { complete: false, text: "Finish the development of levis & virtualis" },
+      { complete: true, text: "第 N 次搭建博客" },
+      { complete: true, text: "买一台新电脑（不是自己买的也算吧）" },
+      { complete: false, text: "完成 Levis 与 Virtualis 的开发" },
     ],
     // Contact methods. `icon` uses iconify icon names.
     // Fill in the platforms and accounts you want to show.
@@ -282,12 +285,13 @@ export const globalConfig: GlobalConfig = {
   // Comments
   // --------------------------------------------------------------------------
   comments: {
-    enabled: true,
+    enabled: false,
     type: "giscus", // Comment system: "giscus" | "twikoo".
     giscus: {
-      repo: "Miralous/Miracle",
-      repoId: "R_kgDOT7JWbw",
-      categoryId: "DIC_kwDOT7JWb84DDknA",
+      repo: "RoyOfficial233/blog",
+      repoId: "R_kgDOUGzE3g",
+      category: "Announcements",
+      categoryId: "DIC_kwDOUGzE3s4DEXNC",
       themes: {
         light: "https://giscus.catppuccin.com/themes/latte.css",
         dark: "https://giscus.catppuccin.com/themes/mocha.css",
