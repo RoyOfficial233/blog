@@ -205,7 +205,9 @@ export const globalConfig: GlobalConfig = {
     { text: languageFile.dashboard, link: "/" },
     { text: "文章", link: "/archives" },
     { text: languageFile.moments, link: "/moments" },
-    { text: languageFile.about, link: "/about" }
+    { text: languageFile.about, link: "/about" },
+    { text: languageFile.whiteboard, link: "/whiteboard" }
+
   ],
 
   // --------------------------------------------------------------------------
