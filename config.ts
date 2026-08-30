@@ -285,12 +285,15 @@ export const globalConfig: GlobalConfig = {
   // Comments
   // --------------------------------------------------------------------------
   comments: {
-    enabled: false,
+    enabled: true,
     type: "giscus", // Comment system: "giscus" | "twikoo".
     giscus: {
       repo: "RoyOfficial233/blog",
       repoId: "R_kgDOUGzE3g",
-      category: "Announcements",
+      // Category and categoryId must come from the SAME giscus.app selection.
+      // These comments live in "General" (DIC_kwDOUGzE3s4DEXNC).
+      // "Announcements" would be DIC_kwDOUGzE3s4DEXNB — only switch both together.
+      category: "General",
       categoryId: "DIC_kwDOUGzE3s4DEXNC",
       themes: {
         light: "https://giscus.catppuccin.com/themes/latte.css",

@@ -470,6 +470,17 @@ comments: {
 
 如果不需要留言板，将 `enabled` 改为 `false`，并从 `nav` 删除 `/whiteboard`。
 
+### 留言框完全不显示（页面空白）
+
+留言框整体没有渲染时，先检查 `comments.enabled` 是否为 `true`。`enabled: false` 时留言框在任何页面都不会出现，与 Giscus 其余配置无关：
+
+```ts
+comments: {
+  enabled: true, // 必须为 true 才会渲染留言框
+  type: "giscus",
+}
+```
+
 ### 已发布留言不显示
 
 Giscus 的留言不是存储在 VitePress 项目里，而是存储在 GitHub Discussions。要显示已有留言，以下配置必须来自同一个 Giscus 仓库和同一个 Discussion 分类：
@@ -478,20 +489,31 @@ Giscus 的留言不是存储在 VitePress 项目里，而是存储在 GitHub Dis
 giscus: {
   repo: "RoyOfficial233/blog",
   repoId: "正确的 repoId",
-  category: "Announcements",
+  category: "General",
   categoryId: "正确的 categoryId",
 }
 ```
 
-`category` 是分类名称，`categoryId` 是该分类的 ID，两者必须匹配。不要只复制 `categoryId` 而保留旧的分类名称。建议重新打开 [giscus.app](https://giscus.app)，输入当前仓库后复制完整配置。
+`category` 是分类名称，`categoryId` 是该分类的 ID，两者必须指向同一个分类。不要只复制 `categoryId` 而保留旧的分类名称。建议重新打开 [giscus.app](https://giscus.app)，输入当前仓库后复制完整配置。
+
+2026-08 排查本站问题时发现：`category` 写的是 `Announcements`，但 `categoryId` 实际是 `General` 分类（`DIC_kwDOUGzE3s4DEXNC`）的，而已发布留言都存放在 `General`，于是把 `category` 改为 `General` 后留言立刻显示。可以用下面的命令核对仓库真实分类（`repositoryId` 应等于 `repoId`）：
+
+```sh
+curl -s "https://giscus.app/api/discussions/categories?repo=RoyOfficial233%2Fblog"
+```
+
+如果想改用 `Announcements`（仅维护者可创建讨论），需要在 GitHub 仓库的 Discussions 页面把旧讨论移动到 `Announcements` 分类，并把 `category` 和 `categoryId` 两个字段一起换成 [giscus.app](https://giscus.app) 为 `Announcements` 生成的值（本站是 `DIC_kwDOUGzE3s4DEXNB`）。只改一个字段就会再次出现不匹配。
 
 还需要检查：
 
+- `comments.enabled` 为 `true`。
 - GitHub 仓库是公开仓库。
 - 仓库已经启用 Discussions。
 - Giscus GitHub App 已安装到该仓库。
 - `/whiteboard` 页面能正常加载 `https://giscus.app/client.js`。
-- 旧留言是通过同一个 `mapping` 规则创建的。本主题使用 `pathname`，所以 `/whiteboard`、`/` 和 `/about` 会对应不同的讨论。
+- 旧留言是通过同一个 `mapping` 规则创建的。本主题使用 `pathname`，所以 `/whiteboard`、`/` 和 `/about` 会对应不同的讨论。`pathname` 只包含路径（如 `/whiteboard`），不包含域名，因此本地 `127.0.0.1:4321` 和线上 `www.royofficial.cn` 的留言互通。
+
+另外注意：同一个路径如果被创建了多个同名的 Discussion（页面重复加载等原因会导致重复创建），Giscus 只会显示其中一个的留言。可以到仓库 Discussions 页面把旧讨论的内容复制或删除，只保留一个。
 
 如果留言原来是在首页发布的，而现在想在 `/whiteboard` 显示，它们不会因为页面移动自动合并。可以在 giscus 的配置中选择原来的映射规则，或在同一个 Discussion 下继续查看旧留言。修改配置后请执行 `pnpm build` 并强制刷新浏览器。
 
